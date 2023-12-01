@@ -1,0 +1,11 @@
+# TI CC2650 Devboard
+
+# Copyright (c) 2019 Brett Witherspoon
+# SPDX-License-Identifier: Apache-2.0
+
+if BOARD_CC2650_DEVBOARD
+
+config BOARD
+	default "cc2650_devboard"
+
+endif # BOARD_CC2650_DEVBOARD
