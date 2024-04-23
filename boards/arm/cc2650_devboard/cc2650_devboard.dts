@@ -16,15 +16,17 @@
 	model = "TI CC2650 Devboard";
 	compatible = "ti,devboard-cc2650";
 
-//	aliases {
-//		led0 = &led0;
-//		led1 = &led1;
+	aliases {
+		led0 = &led0;
+		led1 = &led1;
+		led2 = &led2;
+		led3 = &led3;
 //		sw0 = &btn0;
 //		sw1 = &btn1;
 //		watchdog0 = &wdt0;
 //		mcuboot-led0 = &led1;
 //		mcuboot-button0 = &btn1;
-//	};
+	};
 
 	chosen {
 		zephyr,sram = &sram0;
@@ -34,17 +36,25 @@
 //		zephyr,code-partition = &slot0_partition;
 	};
 
-//	leds {
-//		compatible = "gpio-leds";
-//		led0: led_0 {
-//			gpios = <&gpioa 7 GPIO_ACTIVE_HIGH>;
-//			label = "Green LED";
-//		};
-//		led1: led_1 {
-//			gpios = <&gpioa 6 GPIO_ACTIVE_HIGH>;
-//			label = "Red LED";
-//		};
-//	};
+	leds {
+		compatible = "gpio-leds";
+		led0: led_0 {
+			gpios = <&gpio0 25 GPIO_ACTIVE_HIGH>;
+			label = "Led 1";
+		};
+		led1: led_1 {
+			gpios = <&gpio0 27 GPIO_ACTIVE_HIGH>;
+			label = "Led 2";
+		};
+		led2: led_2 {
+			gpios = <&gpio0 7 GPIO_ACTIVE_HIGH>;
+			label = "Led 3";
+		};
+		led3: led_3 {
+			gpios = <&gpio0 6 GPIO_ACTIVE_HIGH>;
+			label = "Led 4";
+		};
+	};
 
 //	keys {
 //		compatible = "gpio-keys";
