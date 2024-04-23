@@ -22,7 +22,6 @@
 
 		cpu0: cpu@0 {
 			device_type = "cpu";
-			compatible = "arm,cortex-m4";
 			reg = <0>;
 			cpu-power-states = <&idle &standby>;
 		};
@@ -156,14 +155,6 @@
 			compatible = "ti,cc13xx-cc26xx-uart";
 			reg = <0x40001000 0x1000>;
 			interrupts = <5 0>;
-			clocks = <&sysclk>;
-			status = "disabled";
-		};
-
-		uart1: uart@4000b000 {
-			compatible = "ti,cc13xx-cc26xx-uart";
-			reg = <0x4000b000 0x1000>;
-			interrupts = <36 0>;
 			clocks = <&sysclk>;
 			status = "disabled";
 		};

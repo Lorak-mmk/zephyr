@@ -9,26 +9,16 @@
 
 / {
 	sram0: memory@20000000 {
-		reg = <0x20000000 DT_SIZE_K(144)>;
-	};
-
-	soc {
-		uart1: uart@4000b000 {
-			compatible = "ti,cc13xx-cc26xx-uart";
-			reg = <0x4000b000 0x1000>;
-			interrupts = <36 0>;
-			clocks = <&sysclk>;
-			status = "disabled";
-		};
+		reg = <0x20000000 DT_SIZE_K(20)>;
 	};
 };
 
 &cpu0 {
-	compatible = "arm,cortex-m4";
+	compatible = "arm,cortex-m3";
 };
 
 &flash0 {
-	reg = <0x0 DT_SIZE_K(704)>;
+	reg = <0x0 DT_SIZE_K(128)>;
 
 	partitions {
 		compatible = "fixed-partitions";
@@ -36,9 +26,9 @@
 		#size-cells = <1>;
 
 		/* CCFG registers occupy the last 88 bytes of flash */
-		ti_ccfg_partition: partition@affa8 {
+		ti_ccfg_partition: partition@1ffa8 {
 			compatible = "zephyr,memory-region";
-			reg = <0xaffa8 88>;
+			reg = <0x1ffa8 88>;
 			zephyr,memory-region = "FLASH_CCFG";
 		};
 	};
