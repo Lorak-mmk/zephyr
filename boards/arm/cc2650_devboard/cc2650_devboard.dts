@@ -116,14 +116,15 @@
 	status = "okay";
 };
 */
-/*
+
 &uart0 {
 	status = "okay";
 	current-speed = <115200>;
-	pinctrl-0 = <&uart0_rx_default &uart0_tx_default>;
+	hw-flow-control;
+	pinctrl-0 = <&uart0_rx_default &uart0_tx_default &uart0_cts_default &uart0_rts_default>;
 	pinctrl-names = "default";
 };
-*/
+
 /*
 &i2c0 {
 	status = "okay";

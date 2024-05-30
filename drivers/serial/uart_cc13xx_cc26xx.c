@@ -519,10 +519,10 @@ static const struct uart_driver_api uart_cc13xx_cc26xx_driver_api = {
 		if (DT_INST_REG_ADDR(n) == 0x40001000) {		\
 			domain = PRCM_DOMAIN_SERIAL;			\
 			periph = PRCM_PERIPH_UART0;			\
-		} else {						\
+		}/*else {						\
 			domain = PRCM_DOMAIN_PERIPH;			\
 			periph = PRCM_PERIPH_UART1;			\
-		}							\
+		}*/							\
 		PRCMPowerDomainOn(domain);				\
 									\
 		/* Enable UART peripherals */				\
@@ -617,10 +617,15 @@ static const struct uart_driver_api uart_cc13xx_cc26xx_driver_api = {
 		uart_cc13xx_cc26xx_data_##n = {			     \
 		.uart_config = {				     \
 			.baudrate = DT_INST_PROP(n, current_speed),  \
-			.parity = UART_CFG_PARITY_NONE,		     \
-			.stop_bits = UART_CFG_STOP_BITS_1,	     \
-			.data_bits = UART_CFG_DATA_BITS_8,	     \
-			.flow_ctrl = UART_CFG_FLOW_CTRL_NONE,	     \
+			.parity = DT_INST_ENUM_IDX_OR(n, parity,                      \
+						 UART_CFG_PARITY_NONE),		     \
+			.stop_bits = DT_INST_ENUM_IDX_OR(n, stop_bits,                \
+						 UART_CFG_STOP_BITS_1),	     \
+			.data_bits = DT_INST_ENUM_IDX_OR(n, data_bits,                \
+						 UART_CFG_DATA_BITS_8),	     \
+			.flow_ctrl = DT_INST_PROP(n, hw_flow_control) ?               \
+				UART_CFG_FLOW_CTRL_RTS_CTS :                              \
+				UART_CFG_FLOW_CTRL_NONE,	     \
 		},						     \
 		.pcfg = PINCTRL_DT_INST_DEV_CONFIG_GET(n), \
 		UART_CC13XX_CC26XX_INT_FIELDS			     \
