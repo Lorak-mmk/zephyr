@@ -20,11 +20,11 @@
 	uart0_cts_default: uart0_cts_default {
 		pinmux = <0 IOC_PORT_MCU_UART0_CTS>;
 		bias-disable;
+		input-enable;
 	};
 	uart0_rts_default: uart0_rts_default {
 		pinmux = <21 IOC_PORT_MCU_UART0_RTS>;
 		bias-disable;
-		input-enable;
 	};
 
 	/* I2C0 */

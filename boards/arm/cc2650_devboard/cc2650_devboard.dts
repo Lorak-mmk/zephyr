@@ -101,11 +101,11 @@
 	clock-frequency = <48000000>;
 };
 
-/*
-&trng0 {
+
+&trng {
 	status = "okay";
 };
-*/
+
 
 &gpio0 {
 	status = "okay";
