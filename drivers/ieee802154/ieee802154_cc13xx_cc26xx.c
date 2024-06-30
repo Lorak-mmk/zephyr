@@ -25,7 +25,7 @@ LOG_MODULE_REGISTER(ieee802154_cc13xx_cc26xx);
 #include <driverlib/rfc.h>
 #include <inc/hw_ccfg.h>
 #include <inc/hw_fcfg1.h>
-#include <rf_patches/rf_patch_cpe_multi_protocol.h>
+// #include <rf_patches/rf_patch_cpe_multi_protocol.h>
 
 #include <ti/drivers/rf/RF.h>
 
@@ -592,7 +592,7 @@ static const struct ieee802154_radio_api ieee802154_cc13xx_cc26xx_radio_api = {
 /** RF patches to use (note: RF core keeps a pointer to this, so no stack). */
 static RF_Mode rf_mode = {
 	.rfMode      = RF_MODE_MULTIPLE,
-	.cpePatchFxn = &rf_patch_cpe_multi_protocol,
+	.cpePatchFxn = NULL,
 };
 
 static int ieee802154_cc13xx_cc26xx_init(const struct device *dev)
@@ -793,7 +793,7 @@ static struct ieee802154_cc13xx_cc26xx_data ieee802154_cc13xx_cc26xx_data = {
 		.startTrigger.triggerType = TRIG_NOW,
 		.condition.rule = COND_NEVER,
 		.mode = 0x01, /* IEEE 802.15.4 */
-		.loDivider = 0x00,
+//		.loDivider = 0x00,
 		.config = {
 			.frontEndMode = 0x0,
 			.biasMode = 0x0,

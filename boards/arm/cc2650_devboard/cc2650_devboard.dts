@@ -125,6 +125,13 @@
 	pinctrl-names = "default";
 };
 
+&radio {
+	status = "okay";
+	ieee802154 {
+		status = "okay";
+	};
+};
+
 /*
 &i2c0 {
 	status = "okay";

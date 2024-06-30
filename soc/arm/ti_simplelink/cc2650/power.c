@@ -12,19 +12,19 @@
 #include <driverlib/sys_ctrl.h>
 
 #include <ti/drivers/Power.h>
-#include <ti/drivers/power/PowerCC26X2.h>
+#include <ti/drivers/power/PowerCC26XX.h>
 
 #include <ti/drivers/dpl/ClockP.h>
 
-#include <ti/devices/cc13x2_cc26x2/driverlib/cpu.h>
-#include <ti/devices/cc13x2_cc26x2/driverlib/vims.h>
-#include <ti/devices/cc13x2_cc26x2/driverlib/sys_ctrl.h>
+#include <ti/devices/cc26x0/driverlib/cpu.h>
+#include <ti/devices/cc26x0/driverlib/vims.h>
+#include <ti/devices/cc26x0/driverlib/sys_ctrl.h>
 
 #include <zephyr/logging/log.h>
 #define LOG_LEVEL CONFIG_SOC_LOG_LEVEL
 LOG_MODULE_REGISTER(soc);
 
-const PowerCC26X2_Config PowerCC26X2_config = {
+const PowerCC26XX_Config PowerCC26XX_config = {
 #if defined(CONFIG_IEEE802154_CC13XX_CC26XX) \
 	|| defined(CONFIG_BLE_CC13XX_CC26XX) \
 	|| defined(CONFIG_IEEE802154_CC13XX_CC26XX_SUB_GHZ)
@@ -40,14 +40,14 @@ const PowerCC26X2_Config PowerCC26X2_config = {
  */
 	.policyInitFxn      = NULL,
 	.policyFxn          = NULL,
-	.calibrateFxn       = NULL,
+	.calibrateFxn       = &PowerCC26XX_calibrate, // TODO: is it right? Maybe patch PowerCC26XX.c instead?
 	.enablePolicy       = false,
 	.calibrateRCOSC_LF  = false,
 	.calibrateRCOSC_HF  = false
 #endif
 };
 
-extern PowerCC26X2_ModuleState PowerCC26X2_module;
+extern PowerCC26XX_ModuleState PowerCC26XX_module;
 
 #ifdef CONFIG_PM
 /*
@@ -90,12 +90,13 @@ void pm_state_set(enum pm_state state, uint8_t substate_id)
 		 * 5. Ensure any possible outstanding AON writes complete
 		 * 6. Enter IDLE
 		 */
-		if ((constraints & (1 << PowerCC26XX_NEED_FLASH_IN_IDLE)) ||
-			(modeVIMS == VIMS_MODE_DISABLED)) {
-			SysCtrlIdle(VIMS_ON_BUS_ON_MODE);
-		} else {
-			SysCtrlIdle(VIMS_ON_CPU_ON_MODE);
-		}
+		// TODO: Fix this
+		// if ((constraints & (1 << PowerCC26XX_NEED_FLASH_IN_IDLE)) ||
+		// 	(modeVIMS == VIMS_MODE_DISABLED)) {
+		// 	SysCtrlIdle(VIMS_ON_BUS_ON_MODE);
+		// } else {
+		// 	SysCtrlIdle(VIMS_ON_CPU_ON_MODE);
+		// }
 
 		/* 7. Make sure MCU and AON are in sync after wakeup */
 		SysCtrlAonUpdate();
@@ -151,7 +152,7 @@ static int unlatch_pins(void)
 	uint32_t rSrc = SysCtrlResetSourceGet();
 
 	if (rSrc == RSTSRC_WAKEUP_FROM_SHUTDOWN) {
-		PowerCtrlPadSleepDisable();
+		PowerCtrlIOFreezeDisable();
 	}
 
 	return 0;
