@@ -1,0 +1,10 @@
+ source [find cc2650dk.cfg]
+
+init;
+halt;
+
+flash write_image erase build/zephyr/zephyr.bin 0 bin;
+verify_image_checksum build/zephyr/zephyr.bin 0 bin;
+soft_reset_halt
+resume;
+exit;
