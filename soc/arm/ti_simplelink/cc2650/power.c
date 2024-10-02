@@ -90,13 +90,12 @@ void pm_state_set(enum pm_state state, uint8_t substate_id)
 		 * 5. Ensure any possible outstanding AON writes complete
 		 * 6. Enter IDLE
 		 */
-		// TODO: Fix this
-		// if ((constraints & (1 << PowerCC26XX_NEED_FLASH_IN_IDLE)) ||
-		// 	(modeVIMS == VIMS_MODE_DISABLED)) {
-		// 	SysCtrlIdle(VIMS_ON_BUS_ON_MODE);
-		// } else {
-		// 	SysCtrlIdle(VIMS_ON_CPU_ON_MODE);
-		// }
+		if ((constraints & (1 << PowerCC26XX_NEED_FLASH_IN_IDLE)) ||
+			(modeVIMS == VIMS_MODE_DISABLED)) {
+			SysCtrlIdle(VIMS_ON_BUS_ON_MODE);
+		} else {
+			SysCtrlIdle(VIMS_ON_CPU_ON_MODE);
+		}
 
 		/* 7. Make sure MCU and AON are in sync after wakeup */
 		SysCtrlAonUpdate();
