@@ -7,9 +7,9 @@
 
 #define DT_DRV_COMPAT ti_cc13xx_cc26xx_ieee802154
 
-#define LOG_LEVEL CONFIG_IEEE802154_DRIVER_LOG_LEVEL
+// #define LOG_LEVEL CONFIG_IEEE802154_DRIVER_LOG_LEVEL
 #include <zephyr/logging/log.h>
-LOG_MODULE_REGISTER(ieee802154_cc13xx_cc26xx);
+LOG_MODULE_REGISTER(ieee802154_cc13xx_cc26xx, 3);
 
 #include <zephyr/device.h>
 #include <errno.h>
@@ -93,12 +93,14 @@ static void cmd_ieee_csma_callback(RF_Handle h, RF_CmdHandle ch, RF_EventMask e)
 {
 	ARG_UNUSED(h);
 
+	LOG_DBG("start");
+
 	const struct device *const dev = DEVICE_DT_INST_GET(0);
 	struct ieee802154_cc13xx_cc26xx_data *drv_data = dev->data;
 
 	update_saved_cmdhandle(ch, (RF_CmdHandle *) &drv_data->saved_cmdhandle);
 
-	LOG_DBG("e: 0x%" PRIx64, e);
+	LOG_DBG("e: 0x%" PRIx64 ", cmdhandle: 0x%" PRIx16, e, ch);
 
 	if (e & RF_EventInternalError) {
 		LOG_ERR("Internal error");
@@ -114,7 +116,7 @@ static void cmd_ieee_rx_callback(RF_Handle h, RF_CmdHandle ch, RF_EventMask e)
 
 	update_saved_cmdhandle(ch, (RF_CmdHandle *) &drv_data->saved_cmdhandle);
 
-	LOG_DBG("e: 0x%" PRIx64, e);
+	LOG_DBG("e: 0x%" PRIx64 ", cmdhandle: 0x%" PRIx16, e, ch);
 
 	if (e & RF_EventRxBufFull) {
 		LOG_WRN("RX buffer is full");
@@ -200,6 +202,8 @@ static int ieee802154_cc13xx_cc26xx_set_channel(const struct device *dev,
 	uint16_t freq, fract;
 	struct ieee802154_cc13xx_cc26xx_data *drv_data = dev->data;
 
+	LOG_DBG("start");
+
 	ret = ieee802154_cc13xx_cc26xx_channel_to_frequency(channel, &freq, &fract);
 	if (ret < 0) {
 		return ret;
@@ -226,12 +230,15 @@ static int ieee802154_cc13xx_cc26xx_set_channel(const struct device *dev,
 		goto out;
 	}
 
+	LOG_DBG("Frequency setting status: 0x%x", drv_data->cmd_fs.status);
+
 	/* Run BG receive process on requested channel */
 	drv_data->cmd_ieee_rx.status = IDLE;
 	drv_data->cmd_ieee_rx.channel = channel;
 	cmd_handle = RF_postCmd(drv_data->rf_handle,
 		(RF_Op *)&drv_data->cmd_ieee_rx, RF_PriorityNormal,
 		cmd_ieee_rx_callback, RF_EventRxEntryDone);
+	LOG_DBG("started BG RX, handle: 0x%" PRIx16, cmd_handle);
 	if (cmd_handle < 0) {
 		LOG_ERR("Failed to post RX command (%d)", cmd_handle);
 		ret = -EIO;
@@ -366,13 +373,15 @@ static int ieee802154_cc13xx_cc26xx_tx(const struct device *dev,
 			drv_data->cmd_ieee_rx_ack.seqNo = frag->data[2];
 		}
 
+		LOG_DBG("Performing transmission!");
 		reason = RF_runScheduleCmd(drv_data->rf_handle,
 			(RF_Op *)&drv_data->cmd_ieee_csma, &sched_params,
 			cmd_ieee_csma_callback,
 			RF_EventLastFGCmdDone | RF_EventLastCmdDone);
+		LOG_DBG("transmissions done");
 		if ((reason & (RF_EventLastFGCmdDone | RF_EventLastCmdDone))
 			== 0) {
-			LOG_DBG("Failed to run command (0x%" PRIx64 ")",
+			LOG_ERR("Failed to run command (0x%" PRIx64 ")",
 				reason);
 			continue;
 		}
@@ -382,7 +391,7 @@ static int ieee802154_cc13xx_cc26xx_tx(const struct device *dev,
 			 *       fails TX immediately and should not trigger
 			 *       attempt (which is reserved for ACK timeouts).
 			 */
-			LOG_DBG("Channel access failure (0x%x)",
+			LOG_ERR("Channel access failure (0x%x)",
 				drv_data->cmd_ieee_csma.status);
 			continue;
 		}
@@ -392,7 +401,7 @@ static int ieee802154_cc13xx_cc26xx_tx(const struct device *dev,
 			 *       fails TX immediately and should not trigger
 			 *       attempt (which is reserved for ACK timeouts).
 			 */
-			LOG_DBG("Transmit failed (0x%x)",
+			LOG_ERR("Transmit failed (0x%x)",
 				drv_data->cmd_ieee_tx.status);
 			continue;
 		}
@@ -403,7 +412,7 @@ static int ieee802154_cc13xx_cc26xx_tx(const struct device *dev,
 			goto out;
 		}
 
-		LOG_DBG("No acknowledgment (0x%x)",
+		LOG_WRN("No acknowledgment (0x%x)",
 			drv_data->cmd_ieee_rx_ack.status);
 	} while (retry-- > 0);
 
@@ -651,7 +660,7 @@ static int ieee802154_cc13xx_cc26xx_init(const struct device *dev)
 	reason = RF_runCmd(drv_data->rf_handle, (RF_Op *)&drv_data->cmd_fs,
 		RF_PriorityNormal, NULL, 0);
 	if (reason != RF_EventLastCmdDone) {
-		LOG_ERR("Failed to set frequency: 0x%" PRIx64, reason);
+		LOG_ERR("Failed to start FS: 0x%" PRIx64, reason);
 		return -EIO;
 	}
 
