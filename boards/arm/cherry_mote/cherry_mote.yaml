@@ -1,0 +1,18 @@
+identifier: BOARD_CHERRY_MOTE
+name: CherryMote from 1KT project
+type: mcu
+arch: arm
+ram: 20
+flash: 128
+toolchain:
+  - zephyr
+  - gnuarmemb
+  - xtools
+supported:
+  - gpio
+  - i2c
+  - spi
+  - watchdog
+  - adc
+  - hwinfo
+vendor: ti

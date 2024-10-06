@@ -1,0 +1,8 @@
+# TI CC26x2R1 LaunchXL board
+
+# Copyright (c) 2019 Brett Witherspoon
+# SPDX-License-Identifier: Apache-2.0
+
+config BOARD_CHERRY_MOTE
+	bool "CherryMote from 1KT project"
+	depends on SOC_CC2650
