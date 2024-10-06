@@ -35,6 +35,7 @@ LOG_MODULE_REGISTER(ieee802154_cc13xx_cc26xx);
 #include <zephyr/net/openthread.h>
 #endif
 
+#ifndef CONFIG_SOC_SERIES_CC2650
 /* Overrides from SmartRF Studio 7 2.13.0 */
 static uint32_t overrides[] = {
 	/* DC/DC regulator: In Tx, use DCDCCTL5[3:0]=0x3 (DITHER_EN=0 and IPEAK=3). */
@@ -43,6 +44,24 @@ static uint32_t overrides[] = {
 	0x000F8883,
 	0xFFFFFFFF
 };
+#else
+/* Overrides from SmartRF Studio 7 2.13.0 */
+static uint32_t overrides[] = {
+    0x00354038, /* Synth: Set RTRIM (POTAILRESTRIM) to 5 */
+    0x4001402D, /* Synth: Correct CKVD latency setting (address) */
+    0x00608402, /* Synth: Correct CKVD latency setting (value) */
+    //  0x4001405D, /* Synth: Set ANADIV DIV_BIAS_MODE to PG1 (address) */
+    //  0x1801F800, /* Synth: Set ANADIV DIV_BIAS_MODE to PG1 (value) */
+    0x000784A3, /* Synth: Set FREF = 3.43 MHz (24 MHz / 7) */
+    0xA47E0583, /* Synth: Set loop bandwidth after lock to 80 kHz (K2) */
+    0xEAE00603, /* Synth: Set loop bandwidth after lock to 80 kHz (K3, LSB) */
+    0x00010623, /* Synth: Set loop bandwidth after lock to 80 kHz (K3, MSB) */
+    0x002B50DC, /* Adjust AGC DC filter */
+    0x05000243, /* Increase synth programming timeout */
+    0x002082C3, /* Increase synth programming timeout */
+    0xFFFFFFFF, /* End of override list */
+};
+#endif
 
 /* 2.4 GHz power table */
 static const RF_TxPowerTable_Entry txPowerTable_2_4[] = {
@@ -793,14 +812,20 @@ static struct ieee802154_cc13xx_cc26xx_data ieee802154_cc13xx_cc26xx_data = {
 		.startTrigger.triggerType = TRIG_NOW,
 		.condition.rule = COND_NEVER,
 		.mode = 0x01, /* IEEE 802.15.4 */
-//		.loDivider = 0x00,
+#ifndef CONFIG_SOC_SERIES_CC2650
+		.loDivider = 0x00,
+#endif
 		.config = {
 			.frontEndMode = 0x0,
 			.biasMode = 0x0,
 			.analogCfgMode = 0x0,
 			.bNoFsPowerUp = 0x0,
 		},
+#ifndef CONFIG_SOC_SERIES_CC2650
 		.txPower = 0x2853, /* 0 dBm */
+#else
+		.txPower = 0x3161,
+#endif
 		.pRegOverride = overrides
 	},
 };
