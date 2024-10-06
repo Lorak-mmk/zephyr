@@ -1,6 +1,7 @@
 PROJECT_PATH ?= ${PWD}
 
-TARGET_BINARY ?= /home/lorak/studia/magisterka/tock/target/thumbv7m-none-eabi/release/ti-cc2650-smartrf06-ieee802154_tx.elf
+#TARGET_BINARY ?= /home/lorak/studia/magisterka/tock/target/thumbv7m-none-eabi/release/ti-cc2650-smartrf06-ieee802154_tx.elf
+TARGET_BINARY ?= build/zephyr/zephyr.elf
 BINFILE_NAME = build/zephyr/zephyr.bin
 HEXFILE_NAME = build/zephyr/zephyr.hex
 
@@ -11,10 +12,10 @@ DOCKER_HENI_IMAGE = ghcr.io/mimuw-distributed-systems-group/heni_client:heni
 DOCKER_MOUNTS += -v ${HOME}/.mim-dsg/heni:/home/heni/.heni -v ${PROJECT_PATH}:${PROJECT_PATH}
 DOCKER_MOUNTS += --mount type=bind,source=/dev,target=/dev
 
-HENI_CMD = docker run --privileged --rm -it --user=1000 -w=${PROJECT_PATH} ${DOCKER_MOUNTS} ${DOCKER_HENI_IMAGE} heni
+HENI_CMD = docker run --privileged --network host --rm -it --user=1000 -w=${PROJECT_PATH} ${DOCKER_MOUNTS} ${DOCKER_HENI_IMAGE} heni
 
 GDB_PATH=/home/lorak/.local/zephyr-sdk-0.16.3/arm-zephyr-eabi/bin/arm-zephyr-eabi-gdb-py
-GDB_COMMANDS += --eval-command "tar remote 127.0.0.1:3333" --eval-command "set print asm-demangle on" --eval-command "set history save on" --eval-command "add-symbol-file /home/lorak/studia/magisterka/libtock-rs/target/cc2650dk/thumbv7m-none-eabi/release/examples/ieee802154_tx.tbf" #--eval-command "layout split" --eval-command "focus cmd"
+GDB_COMMANDS += --eval-command "tar extended-remote 192.168.1.52:3333" --eval-command "set print asm-demangle on" --eval-command "set history save on" #--eval-command "add-symbol-file /home/lorak/studia/magisterka/libtock-rs/target/cc2650dk/thumbv7m-none-eabi/release/examples/ieee802154_tx.tbf" #--eval-command "layout split" --eval-command "focus cmd"
 # GDB_COMMANDS += --eval-command "layout split"
 
 BOARD_DK = cc2650_devboard
@@ -37,7 +38,8 @@ flash-dk:
 	${HENI_CMD} n prog dk ${HEXFILE_NAME}
 
 flash-cm:
-	${HENI_CMD} n prog cherry -d dev:${CHERRY_DEV} ${HEXFILE_NAME}
+	cp ${BINFILE_NAME} ${BINFILE_NAME}.flash
+	${HENI_CMD} n prog cherry -d dev:${CHERRY_DEV} ${BINFILE_NAME}.flash
 
 readelf:
 	readelf -WaC ${TARGET_BINARY}
