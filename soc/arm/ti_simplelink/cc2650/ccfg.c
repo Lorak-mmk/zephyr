@@ -22,14 +22,14 @@
 #define SET_CCFG_BL_CONFIG_BL_ENABLE 0x00
 #endif /* CONFIG_CC2650_BOOTLOADER_BACKDOOR_ENABLE */
 
-#if defined(CONFIG_SOC_CC1352P) || defined(CONFIG_SOC_CC2652P)
-/* Workaround required to be able to establish links between P and R devices,
- * see SimpleLink(TM) cc13xx_cc26xx SDK 6.20+ Release Notes, Known Issues:
- * https://software-dl.ti.com/simplelink/esd/simplelink_cc13xx_cc26xx_sdk/6.20.00.29/exports/release_notes_simplelink_cc13xx_cc26xx_sdk_6_20_00_29.html#known-issues
- */
-#define SET_CCFG_MODE_CONF_XOSC_CAP_MOD        0x0
-#define SET_CCFG_MODE_CONF_XOSC_CAPARRAY_DELTA 0xD5
-#endif
+#define SET_CCFG_CCFG_TI_OPTIONS_TI_FA_ENABLE 0xC5
+
+#define SET_CCFG_CCFG_TAP_DAP_0_PRCM_TAP_ENABLE 0xC5
+
+#define SET_CCFG_CCFG_TAP_DAP_1_PBIST2_TAP_ENABLE 0xC5
+#define SET_CCFG_CCFG_TAP_DAP_1_PBIST1_TAP_ENABLE 0xC5
+#define SET_CCFG_CCFG_TAP_DAP_1_WUC_TAP_ENABLE 0xC5
+
 
 /* TI recommends setting CCFG values and then including the TI provided ccfg.c */
 #include <startup_files/ccfg.c>
