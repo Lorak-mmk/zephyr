@@ -19,7 +19,7 @@ GDB_COMMANDS += --eval-command "tar extended-remote 192.168.1.52:3333" --eval-co
 # GDB_COMMANDS += --eval-command "layout split"
 
 BOARD_DK = cc2650_devboard
-BOARD_CM = CherryMote
+BOARD_CM = cherry_mote
 CHERRY_DEV ?= 35d
 SAMPLE ?= samples/basic/blinky
 

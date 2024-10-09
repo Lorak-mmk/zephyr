@@ -19,7 +19,7 @@ LOG_MODULE_REGISTER(ieee802_15_4_tx, 10);
 #include <zephyr/kernel.h>
 #include <zephyr/random/random.h>
 
-#include <zephyr/net/buf.h>
+#include <zephyr/net_buf.h>
 #include <net_private.h>
 #include <zephyr/net/ieee802154_radio.h>
 

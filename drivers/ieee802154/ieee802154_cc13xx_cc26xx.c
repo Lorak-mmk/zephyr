@@ -7,9 +7,9 @@
 
 #define DT_DRV_COMPAT ti_cc13xx_cc26xx_ieee802154
 
-// #define LOG_LEVEL CONFIG_IEEE802154_DRIVER_LOG_LEVEL
+#define LOG_LEVEL CONFIG_IEEE802154_DRIVER_LOG_LEVEL
 #include <zephyr/logging/log.h>
-LOG_MODULE_REGISTER(ieee802154_cc13xx_cc26xx, 3);
+LOG_MODULE_REGISTER(ieee802154_cc13xx_cc26xx);
 
 #include <zephyr/device.h>
 #include <errno.h>
@@ -810,7 +810,8 @@ static struct ieee802154_cc13xx_cc26xx_data ieee802154_cc13xx_cc26xx_data = {
 
 	.cmd_radio_setup = {
 #if defined(CONFIG_SOC_CC1352R) || defined(CONFIG_SOC_CC2652R) || \
-	defined(CONFIG_SOC_CC1352R7) || defined(CONFIG_SOC_CC2652R7)
+	defined(CONFIG_SOC_CC1352R7) || defined(CONFIG_SOC_CC2652R7) || \
+	defined(CONFIG_SOC_CC2650)
 		.commandNo = CMD_RADIO_SETUP,
 #elif defined(CONFIG_SOC_CC1352P) || defined(CONFIG_SOC_CC2652P) || \
 	defined(CONFIG_SOC_CC1352P7) || defined(CONFIG_SOC_CC2652P7)

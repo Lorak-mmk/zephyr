@@ -3,6 +3,5 @@
 # Copyright (c) 2019 Brett Witherspoon
 # SPDX-License-Identifier: Apache-2.0
 
-config BOARD_CC2650_DEVBOARD
-	bool "TI CC2650 Devboard"
-	depends on SOC_CC2650
+config BOARD_CHERRY_MOTE
+	select SOC_CC2650

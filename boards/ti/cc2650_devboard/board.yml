@@ -1,0 +1,5 @@
+board:
+  name: cc2650_devboard
+  vendor: ti
+  socs:
+  - name: cc2650
