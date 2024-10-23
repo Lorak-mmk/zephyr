@@ -58,7 +58,6 @@ static void tx_thread()
 					pkt, buf);
 		if (ret) {
 			LOG_ERR("Error transmit data: 0x%x", ret);
-			break;
 		} else {
 			LOG_DBG("send packet!");
 		}
