@@ -282,8 +282,7 @@ SCIF_RESULT_T scifInit(const SCIF_DATA_T* pScifDriverSetup) {
     //osalRegisterCtrlReadyInt();
     osalClearCtrlReadyInt();
     osalEnableCtrlReadyInt();
-    while (!scifReady) {}
-    
+    readyHandler(NULL);
     //osalRegisterTaskAlertInt();
     osalClearTaskAlertInt();
     osalEnableTaskAlertInt();
