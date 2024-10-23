@@ -1,0 +1,1 @@
+zephyr_library_sources(uart_lite_cc13xx_cc26xx.c scif_uart_emulator.c)

@@ -1,0 +1,12 @@
+# Copyright (c) 2019 Brett Witherspoon
+# SPDX-License-Identifier: Apache-2.0
+
+description: TI SimpleLink CC13xx / CC26xx UART Lite using Sensor Controller
+
+compatible: "ti,cc13xx-cc26xx-uart-lite"
+
+include: [uart-controller.yaml, pinctrl-device.yaml, base.yaml]
+
+# properties:
+#   interrupts:
+#     required: true

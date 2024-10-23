@@ -230,6 +230,17 @@
 			status = "disabled";
 			#io-channel-cells = <1>;
 		};
+
+		sc0: sensor_controller@400e1000 {
+			compatible = "ti,sensor-controller";
+			reg = <0x400e1000 0x1>;
+			status = "disabled";
+
+			uart_lite: uart_lite {
+				compatible = "ti,cc13xx-cc26xx-uart-lite";
+				status = "disabled";
+			};
+		};
 	};
 };
 

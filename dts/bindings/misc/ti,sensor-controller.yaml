@@ -1,0 +1,8 @@
+# Copyright (c) 2022 Nordic Semiconductor ASA
+# SPDX-License-Identifier: Apache-2.0
+
+description: TI SimpleLink CC13xx / CC26xx Sensor Controller
+
+compatible: "ti,sensor-controller"
+
+include: base.yaml
