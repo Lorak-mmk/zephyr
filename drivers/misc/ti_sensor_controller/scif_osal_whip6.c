@@ -103,13 +103,11 @@ static void osalUnlockCtrlTaskNbl(void) {
 } // osalUnlockCtrlTaskNbl
 
 void readyHandler(const void *arg) {
-    printk("readyHandler called\r\n");
     scifClearReadyIntSource();
     HWREG(NVIC_DIS0 + NVIC_OFFSET(INT_SCIF_CTRL_READY)) = NVIC_BV(INT_SCIF_CTRL_READY);
 }
 
 void alertHandler(const void *arg) {
-    printk("alertHandler called\r\n");
     scifClearAlertIntSource();
     HWREG(NVIC_DIS0 + NVIC_OFFSET(INT_SCIF_TASK_ALERT)) = NVIC_BV(INT_SCIF_TASK_ALERT);
 }
