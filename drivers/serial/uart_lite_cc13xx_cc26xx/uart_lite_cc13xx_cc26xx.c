@@ -27,6 +27,7 @@ struct uart_cc13xx_cc26xx_config {
 };
 
 struct uart_cc13xx_cc26xx_data {
+	uint32_t lost_bytes;
 #ifdef CONFIG_UART_ASYNC_API
 	uart_callback_t callback;
 	void *user_data;
@@ -53,12 +54,45 @@ static int uart_lite_cc13xx_cc26xx_callback_set(const struct device *dev,
 	return 0;
 }
 
+static size_t cells(size_t characters) {
+	return (characters >> 1) + (characters & 1);
+}
+
 static int uart_lite_cc13xx_cc26xx_tx(const struct device *dev, const uint8_t *buf, size_t len,
 		  int32_t timeout)
 {
 	struct uart_cc13xx_cc26xx_data *data = dev->data;
 
+	__ASSERT(len <= (SCIF_UART_TX_FIFO_MAX_COUNT * 2), "Too long message for UART Lite: %zu", len);
+
+	uint32_t free_cells = (SCIF_UART_TX_FIFO_MAX_COUNT - scifUartGetTxFifoCount());
+
+	if (data->lost_bytes > 0) {
+		// We already lost some bytes.
+		char lost_buffer[27];
+		int written = sprintf(lost_buffer, "\r\nLOST BYTES: %" PRIu32 "\r\n", data->lost_bytes);
+		if (free_cells < (cells(written) + cells(len))) {
+			// If we can't print both the LOST message and the new buffer
+			// then don't print anything. Otherwise we get a lot of
+			// messages cut to first few characters. It is better
+			// to print full messages and skip some of them.
+			data->lost_bytes += len;
+			goto end;
+		}
+		scifUartTxPutChars(lost_buffer, written);
+		free_cells -= cells(written);
+		data->lost_bytes = 0;
+	}
+
+	if (cells(len) > free_cells) {
+		// Not enough space to write everything.
+		data->lost_bytes = (len - (free_cells * 2));
+		len = free_cells * 2;
+	}
+
 	scifUartTxPutChars(buf, len);
+
+end:
 
 	if (data->callback) {
 		struct uart_event event = {
@@ -138,6 +172,12 @@ static const struct uart_cc13xx_cc26xx_config
 
 static struct uart_cc13xx_cc26xx_data
 	uart_lite_cc13xx_cc26xx_data = {
+		.lost_bytes = 0,
+#ifdef CONFIG_UART_ASYNC_API
+		.callback = NULL,
+		.user_data = NULL,
+#endif
+		.printed_warning = false,
 };
 
 DEVICE_DT_INST_DEFINE(0,					     \
