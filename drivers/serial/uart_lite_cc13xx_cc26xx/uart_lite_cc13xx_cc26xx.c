@@ -37,7 +37,6 @@ struct uart_cc13xx_cc26xx_data {
 static void uart_lite_cc13xx_cc26xx_poll_out(const struct device *dev,
 					unsigned char c)
 {
-	//printk("POLL OUT. Count: %d\r\n", scifUartGetTxFifoCount());
 	while ((SCIF_UART_TX_FIFO_MAX_COUNT - scifUartGetTxFifoCount()) == 0) { }
 	scifUartTxPutChar(c);
 }
@@ -138,7 +137,6 @@ static const struct uart_driver_api uart_lite_cc13xx_cc26xx_driver_api = {
 
 static int uart_lite_cc13xx_cc26xx_init(const struct device *dev)
 {
-	printk("UART LITE INIT\r\n");
     AONWUCAuxWakeupEvent(AONWUC_AUX_WAKEUP);
     while(!(AONWUCPowerStatusGet() & AONWUC_AUX_POWER_ON)) {};
 
@@ -156,10 +154,8 @@ static int uart_lite_cc13xx_cc26xx_init(const struct device *dev)
     AONWUCAuxPowerDownConfig(AONWUC_CLOCK_SRC_LF);
 
     int result = scifInit(&scifDriverSetup);
-	printk("scifInit result: %d\r\n", result);
     scifResetTaskStructs((1 << SCIF_UART_EMULATOR_TASK_ID), (1 << SCIF_STRUCT_CFG) | (1 << SCIF_STRUCT_INPUT) | (1 << SCIF_STRUCT_OUTPUT));
     result = scifExecuteTasksOnceNbl(1 << SCIF_UART_EMULATOR_TASK_ID);
-	printk("scifInit scifExecuteTasksOnceNbl: %d\r\n", result);
 
     scifUartSetBaudRate(SCIF_UART_BAUD_RATE);
 
@@ -177,7 +173,6 @@ static struct uart_cc13xx_cc26xx_data
 		.callback = NULL,
 		.user_data = NULL,
 #endif
-		.printed_warning = false,
 };
 
 DEVICE_DT_INST_DEFINE(0,					     \
