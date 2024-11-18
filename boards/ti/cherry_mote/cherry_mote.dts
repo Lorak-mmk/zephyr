@@ -19,6 +19,7 @@
 	aliases {
 		led0 = &led0;
 		uart-lite = &uart_lite;
+		ambient-temp0 = &temp_sensor;
 //		sw0 = &btn0;
 //		sw1 = &btn1;
 //		watchdog0 = &wdt0;
@@ -126,14 +127,22 @@
 	};
 };
 
-/*
+
 &i2c0 {
 	status = "okay";
 	pinctrl-0 = <&i2c0_scl_default &i2c0_sda_default>;
 	pinctrl-1 = <&i2c0_scl_sleep &i2c0_sda_sleep>;
 	pinctrl-names = "default", "sleep";
+
+	temp_sensor: tmp431@4c {
+		compatible = "ti,tmp431";
+		reg = <0x4c>;
+		supply-gpios = <&gpio0 6 IOC_PORT_GPIO>;
+		status = "okay";
+	};
 };
 
+/*
 &spi0 {
 	status = "okay";
 	pinctrl-0 = <&spi0_sck_default &spi0_mosi_default

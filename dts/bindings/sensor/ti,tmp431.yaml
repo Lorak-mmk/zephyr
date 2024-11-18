@@ -1,0 +1,33 @@
+# Copyright (c) 2019, Linaro Limited
+# SPDX-License-Identifier: Apache-2.0
+
+description: |
+    TMP431 Temperature Sensor. See more info at
+    https://www.ti.com/product/TMP431
+
+compatible: "ti,tmp431"
+
+include: [sensor-device.yaml, i2c-device.yaml]
+
+properties:
+  extended-mode:
+    description: If enabled, uses temperature range from [-64°C, 191°C]. If disabled, uses [0°C, 127°C]. 
+    type: boolean
+  supply-pin:
+    type: phandles
+    description: Pin that powers on the thermometer
+  conversion-rate:
+    description: Conversion rate in tenths of mHz (milli-Hertz). 10000 = 1Hz
+    type: int
+    default: 40000
+    enum:
+      - 625
+      - 1250
+      - 2500
+      - 5000
+      - 10000
+      - 20000
+      - 40000
+      - 80000
+
+
