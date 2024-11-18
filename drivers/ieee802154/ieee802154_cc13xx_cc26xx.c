@@ -44,6 +44,23 @@ static uint32_t overrides[] = {
 	0x000F8883,
 	0xFFFFFFFF
 };
+
+/* 2.4 GHz power table */
+static const RF_TxPowerTable_Entry txPowerTable_2_4[] = {
+	{-20, RF_TxPowerTable_DEFAULT_PA_ENTRY(6, 3, 0, 2)},
+	{-15, RF_TxPowerTable_DEFAULT_PA_ENTRY(10, 3, 0, 3)},
+	{-10, RF_TxPowerTable_DEFAULT_PA_ENTRY(15, 3, 0, 5)},
+	{-5, RF_TxPowerTable_DEFAULT_PA_ENTRY(22, 3, 0, 9)},
+	{0, RF_TxPowerTable_DEFAULT_PA_ENTRY(19, 1, 0, 20)},
+	{1, RF_TxPowerTable_DEFAULT_PA_ENTRY(22, 1, 0, 20)},
+	{2, RF_TxPowerTable_DEFAULT_PA_ENTRY(25, 1, 0, 25)},
+	{3, RF_TxPowerTable_DEFAULT_PA_ENTRY(29, 1, 0, 28)},
+	{4, RF_TxPowerTable_DEFAULT_PA_ENTRY(35, 1, 0, 39)},
+	{5, RF_TxPowerTable_DEFAULT_PA_ENTRY(23, 0, 0, 57)},
+	RF_TxPowerTable_TERMINATION_ENTRY,
+};
+
+
 #else
 /* Overrides from SmartRF Studio 7 2.13.0 */
 static uint32_t overrides[] = {
@@ -61,22 +78,26 @@ static uint32_t overrides[] = {
     0x002082C3, /* Increase synth programming timeout */
     0xFFFFFFFF, /* End of override list */
 };
-#endif
 
 /* 2.4 GHz power table */
 static const RF_TxPowerTable_Entry txPowerTable_2_4[] = {
-	{-20, RF_TxPowerTable_DEFAULT_PA_ENTRY(6, 3, 0, 2)},
-	{-15, RF_TxPowerTable_DEFAULT_PA_ENTRY(10, 3, 0, 3)},
-	{-10, RF_TxPowerTable_DEFAULT_PA_ENTRY(15, 3, 0, 5)},
-	{-5, RF_TxPowerTable_DEFAULT_PA_ENTRY(22, 3, 0, 9)},
-	{0, RF_TxPowerTable_DEFAULT_PA_ENTRY(19, 1, 0, 20)},
-	{1, RF_TxPowerTable_DEFAULT_PA_ENTRY(22, 1, 0, 20)},
-	{2, RF_TxPowerTable_DEFAULT_PA_ENTRY(25, 1, 0, 25)},
-	{3, RF_TxPowerTable_DEFAULT_PA_ENTRY(29, 1, 0, 28)},
-	{4, RF_TxPowerTable_DEFAULT_PA_ENTRY(35, 1, 0, 39)},
-	{5, RF_TxPowerTable_DEFAULT_PA_ENTRY(23, 0, 0, 57)},
+	{-21, RF_TxPowerTable_DEFAULT_PA_ENTRY(7, 3, 0, 6) },
+	{-18, RF_TxPowerTable_DEFAULT_PA_ENTRY(9, 3, 0, 6) },
+	{-15, RF_TxPowerTable_DEFAULT_PA_ENTRY(11, 3, 0, 6) },
+	{-12, RF_TxPowerTable_DEFAULT_PA_ENTRY(11, 1, 0, 10) },
+	{-9, RF_TxPowerTable_DEFAULT_PA_ENTRY(14, 1, 1, 12) },
+	{-6, RF_TxPowerTable_DEFAULT_PA_ENTRY(18, 1, 1, 14) },
+	{-3, RF_TxPowerTable_DEFAULT_PA_ENTRY(24, 1, 1, 18) },
+	{0, RF_TxPowerTable_DEFAULT_PA_ENTRY(33, 1, 1, 24) },
+	{1, RF_TxPowerTable_DEFAULT_PA_ENTRY(20, 0, 0, 33) },
+	{2, RF_TxPowerTable_DEFAULT_PA_ENTRY(24, 0, 0, 39) },
+	{3, RF_TxPowerTable_DEFAULT_PA_ENTRY(28, 0, 0, 45) },
+	{4, RF_TxPowerTable_DEFAULT_PA_ENTRY(36, 0, 1, 73) },
+	{5, RF_TxPowerTable_DEFAULT_PA_ENTRY(48, 0, 1, 73) },
 	RF_TxPowerTable_TERMINATION_ENTRY,
 };
+
+#endif
 
 static void ieee802154_cc13xx_cc26xx_rx_done(
 	struct ieee802154_cc13xx_cc26xx_data *drv_data);
