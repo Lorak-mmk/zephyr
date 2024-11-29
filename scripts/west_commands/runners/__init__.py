@@ -33,6 +33,7 @@ _names = [
     'esp32',
     'ezflashcli',
     'gd32isp',
+    'heni',
     'hifive1',
     'intel_adsp',
     'intel_cyclonev',
