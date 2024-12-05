@@ -1,0 +1,5 @@
+board:
+  name: cherry_mote
+  vendor: ti
+  socs:
+  - name: cc2650
