@@ -1,0 +1,18 @@
+identifier: cc2650_devboard
+name: TI SimpleLink CC2650 Devboard
+type: mcu
+arch: arm
+ram: 20
+flash: 128
+toolchain:
+  - zephyr
+  - gnuarmemb
+  - xtools
+supported:
+  - gpio
+  - i2c
+  - spi
+  - watchdog
+  - adc
+  - hwinfo
+vendor: ti
