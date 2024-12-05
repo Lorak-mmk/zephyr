@@ -13,15 +13,55 @@
  */
 
 #include <zephyr/logging/log.h>
-LOG_MODULE_REGISTER(ieee802_15_4_tx, 5);
+LOG_MODULE_REGISTER(1KT_demo);
 
 #include <zephyr/drivers/uart.h>
 #include <zephyr/kernel.h>
 #include <zephyr/random/random.h>
 
 #include <zephyr/net_buf.h>
-#include <net_private.h>
 #include <zephyr/net/ieee802154_radio.h>
+
+#include <zephyr/shell/shell.h>
+
+static int cmd_uart_lite_start (const struct shell *sh, size_t argc, char **argv) {
+	LOG_INF("Called uart lite start");
+	shell_print(sh, "uart lite start argc = %zd", argc);
+	for (size_t cnt = 0; cnt < argc; cnt++) {
+		shell_print(sh, "  argv[%zd] = %s", cnt, argv[cnt]);
+	}
+
+	return 0;
+}
+
+static int cmd_uart_lite_stop (const struct shell *sh, size_t argc, char **argv) {
+	LOG_INF("Called uart lite stop");
+	shell_print(sh, "uart lite stop argc = %zd", argc);
+	for (size_t cnt = 0; cnt < argc; cnt++) {
+		shell_print(sh, "  argv[%zd] = %s", cnt, argv[cnt]);
+	}
+
+	return 0;
+}
+
+
+SHELL_STATIC_SUBCMD_SET_CREATE(sub_uart_lite,
+	SHELL_CMD_ARG(start, NULL,
+		  "Start sending UART Lite messages every X ms",
+		  cmd_uart_lite_start, 2, 0),
+	SHELL_CMD_ARG(stop, NULL,
+		  "Start sending UART Lite messages every 1ms",
+		  cmd_uart_lite_stop, 2, 0),
+	SHELL_SUBCMD_SET_END /* Array terminated. */
+);
+
+SHELL_STATIC_SUBCMD_SET_CREATE(sub_demo,
+	SHELL_CMD_ARG(lite, &sub_uart_lite, "UART Lite commands", NULL, 2, 0),
+	SHELL_SUBCMD_SET_END /* Array terminated. */
+);
+
+SHELL_CMD_REGISTER(demo, &sub_demo, "Log test", NULL);
+
 
 /* ieee802.15.4 device */
 static struct ieee802154_radio_api *radio_api;
