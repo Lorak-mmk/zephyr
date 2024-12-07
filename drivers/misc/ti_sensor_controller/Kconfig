@@ -1,0 +1,7 @@
+# Copyright (c) 2023 TOKITA Hiroshi <tokita.hiroshi@fujitsu.com>
+# SPDX-License-Identifier: Apache-2.0
+
+config TI_SENSOR_CONTROLLER
+	bool "TI Sensor Controller"
+	default y
+	depends on DT_HAS_TI_SENSOR_CONTROLLER_ENABLED

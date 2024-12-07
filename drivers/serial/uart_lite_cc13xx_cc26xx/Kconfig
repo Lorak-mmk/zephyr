@@ -1,0 +1,9 @@
+config UART_LITE_CC13XX_CC26XX
+	bool "TI SimpleLink CC13xx / CC26xx UART emulated using Sensor Controller"
+	default y
+	depends on DT_HAS_TI_CC13XX_CC26XX_UART_LITE_ENABLED
+	select SERIAL_HAS_DRIVER
+	select SERIAL_SUPPORT_ASYNC
+	select CONFIG_DYNAMIC_INTERRUPTS
+	help
+	  Enable the TI SimpleLink CC13xx / CC26xx UART Lite driver.
