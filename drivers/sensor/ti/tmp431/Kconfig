@@ -1,0 +1,30 @@
+# TMP431 temperature sensor configuration options
+
+# Copyright (c) 2016 Firmwave
+# SPDX-License-Identifier: Apache-2.0
+
+config TMP431
+	bool "TMP431 Temperature Sensor"
+	default y
+	depends on DT_HAS_TI_TMP431_ENABLED
+	select I2C
+	help
+	  Enable the driver for Texas Instruments TMP431 Temperature Sensors.
+
+if TMP431
+
+config TMP431_FULL_SCALE_RUNTIME
+	bool "Allow to set extended mode at runtime"
+	default y
+	help
+	  When set extended mode can be selected using tmp431_attr_set
+	  with SENSOR_ATTR_FULL_SCALE and value to set either 127 or 191
+
+config TMP431_SAMPLING_FREQUENCY_RUNTIME
+	bool "Allow to set conversion rate at runtime"
+	default y
+	help
+	  When set conversion rate can be set at runtime using sensor_attr_set
+	  with SENSOR_ATTR_SAMPLING_FREQUENCY
+
+endif # TMP431
