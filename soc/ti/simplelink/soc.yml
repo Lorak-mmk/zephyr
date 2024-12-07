@@ -20,3 +20,6 @@ family:
   - name: msp432p4xx
     socs:
     - name: msp432p401r
+  - name: cc2650
+    socs:
+    - name: cc2650 

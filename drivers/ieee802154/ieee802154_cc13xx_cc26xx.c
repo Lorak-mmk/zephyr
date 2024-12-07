@@ -25,7 +25,7 @@ LOG_MODULE_REGISTER(ieee802154_cc13xx_cc26xx);
 #include <driverlib/rfc.h>
 #include <inc/hw_ccfg.h>
 #include <inc/hw_fcfg1.h>
-#include <rf_patches/rf_patch_cpe_multi_protocol.h>
+// #include <rf_patches/rf_patch_cpe_multi_protocol.h>
 
 #include <ti/drivers/rf/RF.h>
 
@@ -35,6 +35,7 @@ LOG_MODULE_REGISTER(ieee802154_cc13xx_cc26xx);
 #include <zephyr/net/openthread.h>
 #endif
 
+#ifndef CONFIG_SOC_SERIES_CC2650
 /* Overrides from SmartRF Studio 7 2.13.0 */
 static uint32_t overrides[] = {
 	/* DC/DC regulator: In Tx, use DCDCCTL5[3:0]=0x3 (DITHER_EN=0 and IPEAK=3). */
@@ -59,6 +60,45 @@ static const RF_TxPowerTable_Entry txPowerTable_2_4[] = {
 	RF_TxPowerTable_TERMINATION_ENTRY,
 };
 
+
+#else
+/* Overrides from SmartRF Studio 7 2.13.0 */
+static uint32_t overrides[] = {
+    0x00354038, /* Synth: Set RTRIM (POTAILRESTRIM) to 5 */
+    0x4001402D, /* Synth: Correct CKVD latency setting (address) */
+    0x00608402, /* Synth: Correct CKVD latency setting (value) */
+    //  0x4001405D, /* Synth: Set ANADIV DIV_BIAS_MODE to PG1 (address) */
+    //  0x1801F800, /* Synth: Set ANADIV DIV_BIAS_MODE to PG1 (value) */
+    0x000784A3, /* Synth: Set FREF = 3.43 MHz (24 MHz / 7) */
+    0xA47E0583, /* Synth: Set loop bandwidth after lock to 80 kHz (K2) */
+    0xEAE00603, /* Synth: Set loop bandwidth after lock to 80 kHz (K3, LSB) */
+    0x00010623, /* Synth: Set loop bandwidth after lock to 80 kHz (K3, MSB) */
+    0x002B50DC, /* Adjust AGC DC filter */
+    0x05000243, /* Increase synth programming timeout */
+    0x002082C3, /* Increase synth programming timeout */
+    0xFFFFFFFF, /* End of override list */
+};
+
+/* 2.4 GHz power table */
+static const RF_TxPowerTable_Entry txPowerTable_2_4[] = {
+	{-21, RF_TxPowerTable_DEFAULT_PA_ENTRY(7, 3, 0, 6) },
+	{-18, RF_TxPowerTable_DEFAULT_PA_ENTRY(9, 3, 0, 6) },
+	{-15, RF_TxPowerTable_DEFAULT_PA_ENTRY(11, 3, 0, 6) },
+	{-12, RF_TxPowerTable_DEFAULT_PA_ENTRY(11, 1, 0, 10) },
+	{-9, RF_TxPowerTable_DEFAULT_PA_ENTRY(14, 1, 1, 12) },
+	{-6, RF_TxPowerTable_DEFAULT_PA_ENTRY(18, 1, 1, 14) },
+	{-3, RF_TxPowerTable_DEFAULT_PA_ENTRY(24, 1, 1, 18) },
+	{0, RF_TxPowerTable_DEFAULT_PA_ENTRY(33, 1, 1, 24) },
+	{1, RF_TxPowerTable_DEFAULT_PA_ENTRY(20, 0, 0, 33) },
+	{2, RF_TxPowerTable_DEFAULT_PA_ENTRY(24, 0, 0, 39) },
+	{3, RF_TxPowerTable_DEFAULT_PA_ENTRY(28, 0, 0, 45) },
+	{4, RF_TxPowerTable_DEFAULT_PA_ENTRY(36, 0, 1, 73) },
+	{5, RF_TxPowerTable_DEFAULT_PA_ENTRY(48, 0, 1, 73) },
+	RF_TxPowerTable_TERMINATION_ENTRY,
+};
+
+#endif
+
 static void ieee802154_cc13xx_cc26xx_rx_done(
 	struct ieee802154_cc13xx_cc26xx_data *drv_data);
 static int ieee802154_cc13xx_cc26xx_stop(const struct device *dev);
@@ -74,12 +114,14 @@ static void cmd_ieee_csma_callback(RF_Handle h, RF_CmdHandle ch, RF_EventMask e)
 {
 	ARG_UNUSED(h);
 
+	LOG_DBG("start");
+
 	const struct device *const dev = DEVICE_DT_INST_GET(0);
 	struct ieee802154_cc13xx_cc26xx_data *drv_data = dev->data;
 
 	update_saved_cmdhandle(ch, (RF_CmdHandle *) &drv_data->saved_cmdhandle);
 
-	LOG_DBG("e: 0x%" PRIx64, e);
+	LOG_DBG("e: 0x%" PRIx64 ", cmdhandle: 0x%" PRIx16, e, ch);
 
 	if (e & RF_EventInternalError) {
 		LOG_ERR("Internal error");
@@ -95,7 +137,7 @@ static void cmd_ieee_rx_callback(RF_Handle h, RF_CmdHandle ch, RF_EventMask e)
 
 	update_saved_cmdhandle(ch, (RF_CmdHandle *) &drv_data->saved_cmdhandle);
 
-	LOG_DBG("e: 0x%" PRIx64, e);
+	LOG_DBG("e: 0x%" PRIx64 ", cmdhandle: 0x%" PRIx16, e, ch);
 
 	if (e & RF_EventRxBufFull) {
 		LOG_WRN("RX buffer is full");
@@ -181,6 +223,8 @@ static int ieee802154_cc13xx_cc26xx_set_channel(const struct device *dev,
 	uint16_t freq, fract;
 	struct ieee802154_cc13xx_cc26xx_data *drv_data = dev->data;
 
+	LOG_DBG("start");
+
 	ret = ieee802154_cc13xx_cc26xx_channel_to_frequency(channel, &freq, &fract);
 	if (ret < 0) {
 		return ret;
@@ -207,12 +251,15 @@ static int ieee802154_cc13xx_cc26xx_set_channel(const struct device *dev,
 		goto out;
 	}
 
+	LOG_DBG("Frequency setting status: 0x%x", drv_data->cmd_fs.status);
+
 	/* Run BG receive process on requested channel */
 	drv_data->cmd_ieee_rx.status = IDLE;
 	drv_data->cmd_ieee_rx.channel = channel;
 	cmd_handle = RF_postCmd(drv_data->rf_handle,
 		(RF_Op *)&drv_data->cmd_ieee_rx, RF_PriorityNormal,
 		cmd_ieee_rx_callback, RF_EventRxEntryDone);
+	LOG_DBG("started BG RX, handle: 0x%" PRIx16, cmd_handle);
 	if (cmd_handle < 0) {
 		LOG_ERR("Failed to post RX command (%d)", cmd_handle);
 		ret = -EIO;
@@ -347,13 +394,15 @@ static int ieee802154_cc13xx_cc26xx_tx(const struct device *dev,
 			drv_data->cmd_ieee_rx_ack.seqNo = frag->data[2];
 		}
 
+		LOG_DBG("Performing transmission!");
 		reason = RF_runScheduleCmd(drv_data->rf_handle,
 			(RF_Op *)&drv_data->cmd_ieee_csma, &sched_params,
 			cmd_ieee_csma_callback,
 			RF_EventLastFGCmdDone | RF_EventLastCmdDone);
+		LOG_DBG("transmissions done");
 		if ((reason & (RF_EventLastFGCmdDone | RF_EventLastCmdDone))
 			== 0) {
-			LOG_DBG("Failed to run command (0x%" PRIx64 ")",
+			LOG_ERR("Failed to run command (0x%" PRIx64 ")",
 				reason);
 			continue;
 		}
@@ -363,7 +412,7 @@ static int ieee802154_cc13xx_cc26xx_tx(const struct device *dev,
 			 *       fails TX immediately and should not trigger
 			 *       attempt (which is reserved for ACK timeouts).
 			 */
-			LOG_DBG("Channel access failure (0x%x)",
+			LOG_ERR("Channel access failure (0x%x)",
 				drv_data->cmd_ieee_csma.status);
 			continue;
 		}
@@ -373,7 +422,7 @@ static int ieee802154_cc13xx_cc26xx_tx(const struct device *dev,
 			 *       fails TX immediately and should not trigger
 			 *       attempt (which is reserved for ACK timeouts).
 			 */
-			LOG_DBG("Transmit failed (0x%x)",
+			LOG_ERR("Transmit failed (0x%x)",
 				drv_data->cmd_ieee_tx.status);
 			continue;
 		}
@@ -384,7 +433,7 @@ static int ieee802154_cc13xx_cc26xx_tx(const struct device *dev,
 			goto out;
 		}
 
-		LOG_DBG("No acknowledgment (0x%x)",
+		LOG_WRN("No acknowledgment (0x%x)",
 			drv_data->cmd_ieee_rx_ack.status);
 	} while (retry-- > 0);
 
@@ -592,7 +641,7 @@ static const struct ieee802154_radio_api ieee802154_cc13xx_cc26xx_radio_api = {
 /** RF patches to use (note: RF core keeps a pointer to this, so no stack). */
 static RF_Mode rf_mode = {
 	.rfMode      = RF_MODE_MULTIPLE,
-	.cpePatchFxn = &rf_patch_cpe_multi_protocol,
+	.cpePatchFxn = NULL,
 };
 
 static int ieee802154_cc13xx_cc26xx_init(const struct device *dev)
@@ -632,7 +681,7 @@ static int ieee802154_cc13xx_cc26xx_init(const struct device *dev)
 	reason = RF_runCmd(drv_data->rf_handle, (RF_Op *)&drv_data->cmd_fs,
 		RF_PriorityNormal, NULL, 0);
 	if (reason != RF_EventLastCmdDone) {
-		LOG_ERR("Failed to set frequency: 0x%" PRIx64, reason);
+		LOG_ERR("Failed to start FS: 0x%" PRIx64, reason);
 		return -EIO;
 	}
 
@@ -668,7 +717,7 @@ static struct ieee802154_cc13xx_cc26xx_data ieee802154_cc13xx_cc26xx_data = {
 		.pRxQ = &ieee802154_cc13xx_cc26xx_data.rx_queue,
 		.pOutput = NULL,
 		.frameFiltOpt = {
-			.frameFiltEn = 1,
+			.frameFiltEn = 0,
 			.frameFiltStop = 0,
 			.autoAckEn = 1,
 			.slottedAckEn = 0,
@@ -782,7 +831,8 @@ static struct ieee802154_cc13xx_cc26xx_data ieee802154_cc13xx_cc26xx_data = {
 
 	.cmd_radio_setup = {
 #if defined(CONFIG_SOC_CC1352R) || defined(CONFIG_SOC_CC2652R) || \
-	defined(CONFIG_SOC_CC1352R7) || defined(CONFIG_SOC_CC2652R7)
+	defined(CONFIG_SOC_CC1352R7) || defined(CONFIG_SOC_CC2652R7) || \
+	defined(CONFIG_SOC_CC2650)
 		.commandNo = CMD_RADIO_SETUP,
 #elif defined(CONFIG_SOC_CC1352P) || defined(CONFIG_SOC_CC2652P) || \
 	defined(CONFIG_SOC_CC1352P7) || defined(CONFIG_SOC_CC2652P7)
@@ -793,14 +843,20 @@ static struct ieee802154_cc13xx_cc26xx_data ieee802154_cc13xx_cc26xx_data = {
 		.startTrigger.triggerType = TRIG_NOW,
 		.condition.rule = COND_NEVER,
 		.mode = 0x01, /* IEEE 802.15.4 */
+#ifndef CONFIG_SOC_SERIES_CC2650
 		.loDivider = 0x00,
+#endif
 		.config = {
 			.frontEndMode = 0x0,
 			.biasMode = 0x0,
 			.analogCfgMode = 0x0,
 			.bNoFsPowerUp = 0x0,
 		},
+#ifndef CONFIG_SOC_SERIES_CC2650
 		.txPower = 0x2853, /* 0 dBm */
+#else
+		.txPower = 0x3161,
+#endif
 		.pRegOverride = overrides
 	},
 };

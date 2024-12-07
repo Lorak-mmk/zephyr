@@ -19,7 +19,11 @@
 #include <driverlib/uart.h>
 
 #include <ti/drivers/Power.h>
+#ifdef CONFIG_SOC_CC2650
+#include <ti/drivers/power/PowerCC26XX.h>
+#else
 #include <ti/drivers/power/PowerCC26X2.h>
+#endif
 #include <zephyr/irq.h>
 
 struct uart_cc13xx_cc26xx_config {
@@ -407,7 +411,9 @@ static int postNotifyFxn(unsigned int eventType, uintptr_t eventArg,
 		if (config->reg == DT_INST_REG_ADDR(0)) {
 			res_id = PowerCC26XX_PERIPH_UART0;
 		} else { /* DT_INST_REG_ADDR(1) */
+			#ifdef PowerCC26X2_PERIPH_UART1
 			res_id = PowerCC26X2_PERIPH_UART1;
+			#endif
 		}
 
 		if (Power_getDependencyCount(res_id) != 0) {
@@ -490,6 +496,19 @@ static const struct uart_driver_api uart_cc13xx_cc26xx_driver_api = {
 #endif /* CONFIG_UART_INTERRUPT_DRIVEN */
 };
 
+#ifdef PowerCC26X2_PERIPH_UART1
+#define SET_UART_PERIPH_POWER_DEPENDENCY(n) \
+	do { \
+		if (DT_INST_REG_ADDR(n) == 0x40001000) {		\
+			Power_setDependency(PowerCC26XX_PERIPH_UART0);	\
+		} else {						\
+			Power_setDependency(PowerCC26X2_PERIPH_UART1);	\
+		}	\
+	} while(false)
+#else
+#define SET_UART_PERIPH_POWER_DEPENDENCY(n) Power_setDependency(PowerCC26XX_PERIPH_UART0)
+#endif
+
 #ifdef CONFIG_PM
 #define UART_CC13XX_CC26XX_POWER_UART(n)				\
 	do {								\
@@ -499,11 +518,7 @@ static const struct uart_driver_api uart_cc13xx_cc26xx_driver_api = {
 		atomic_clear_bit(dev_data->pm_lock, UART_CC13XX_CC26XX_PM_LOCK_TX); \
 									\
 		/* Set Power dependencies */				\
-		if (DT_INST_REG_ADDR(n) == 0x40001000) {		\
-			Power_setDependency(PowerCC26XX_PERIPH_UART0);	\
-		} else {						\
-			Power_setDependency(PowerCC26X2_PERIPH_UART1);	\
-		}							\
+		SET_UART_PERIPH_POWER_DEPENDENCY(n); \
 									\
 		/* Register notification function */			\
 		Power_registerNotify(&dev_data->postNotify,		\
@@ -519,10 +534,10 @@ static const struct uart_driver_api uart_cc13xx_cc26xx_driver_api = {
 		if (DT_INST_REG_ADDR(n) == 0x40001000) {		\
 			domain = PRCM_DOMAIN_SERIAL;			\
 			periph = PRCM_PERIPH_UART0;			\
-		} else {						\
+		}/*else {						\
 			domain = PRCM_DOMAIN_PERIPH;			\
 			periph = PRCM_PERIPH_UART1;			\
-		}							\
+		}*/							\
 		PRCMPowerDomainOn(domain);				\
 									\
 		/* Enable UART peripherals */				\
