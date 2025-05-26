@@ -23,6 +23,8 @@ manifest:
       url-base: https://github.com/zephyrproject-rtos
     - name: babblesim
       url-base: https://github.com/BabbleSim
+    - name: lorak
+      url-base: https://github.com/Lorak-mmk
 
   group-filter: [-babblesim, -optional]
 
@@ -243,7 +245,8 @@ manifest:
       groups:
         - hal
     - name: hal_ti
-      revision: 2e7b95ad079e9f636884eedc6853e6ad98b85f65
+      revision: 1b008fb03f8f2de428df902a6dff07d952d91eea
+      remote: lorak
       path: modules/hal/ti
       groups:
         - hal
