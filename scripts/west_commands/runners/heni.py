@@ -95,16 +95,18 @@ class HeniRunner(ZephyrBinaryRunner):
             gdb_init=args.gdb_init)
     
     def get_docker_heni_cmd(self):
+        heni_config = Path.home() / '.mim-dsg' / 'heni'
+        zephyr_base = Path(ZEPHYR_BASE)
         return ['docker', 'run',
             '--privileged',
             '--network', 'host',
             '--rm',
             '-it',
             '--user=1000',
-            '-w=/home/lorak/studia/magisterka/zephyr/zephyr',
-            '-v', '/home/lorak/.mim-dsg/heni:/home/heni/.heni',
-            '-v', '/home/lorak/studia/magisterka/zephyr/zephyr:/home/lorak/studia/magisterka/zephyr/zephyr',
-            '--mount', 'type=bind,source=/dev,target=/dev', 
+            f'-w={zephyr_base}',
+            '-v', f'{heni_config}:/home/heni/.heni',
+            '-v', f'{zephyr_base}:{zephyr_base}',
+            '--mount', 'type=bind,source=/dev,target=/dev',
             'ghcr.io/mimuw-distributed-systems-group/heni_client:heni',
             'heni']
 
