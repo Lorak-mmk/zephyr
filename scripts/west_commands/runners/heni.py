@@ -169,4 +169,4 @@ class HeniRunner(ZephyrBinaryRunner):
         self.push_openocd_config()
         server_cmd = (self.heni_cmd + ['supervisor', 'ssh', self.dev_id, '--', '-t', '--'] +
                       ['openocd', '-f', '/usr/share/openocd/scripts/board/cherrymote.cfg'])
-        self.check_call(cmd)
+        self.check_call(server_cmd)
